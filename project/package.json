@@ -3,13 +3,17 @@
   "version": "1.0.0",
   "description": "MJML Project",
   "scripts": {
-    "build": "npx mjml-project process -t \"templates/**/*.mjml\"",
-    "watch": "npx mjml-project process -t \"templates/**/*.mjml\" --watch"
+    "build": "npx mjml-project process",
+    "watch": "npx mjml-project process --watch"
   },
   "license": "UNLICENSED",
   "devDependencies": {
+    "@babel/cli": "^7.6.2",
+    "@babel/core": "^7.6.2",
+    "@babel/node": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
     "mjml-core": "^4.5.1",
-    "mjml-validator": "^4.5.0",
-    "mjml-project": "^1.0.0"
+    "mjml-project": "^1.0.2",
+    "mjml-validator": "^4.5.0"
   }
 }

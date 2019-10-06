@@ -9,10 +9,15 @@
   },
   "scripts": {
     "prepare": "npm run-script build",
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "test:build": "npm run-script build && node ./dist/index.js process",
+    "test:watch": "npm run-script build && node ./dist/index.js process --watch"
   },
   "author": "Matt Scheurich <matt@lvl99.com>",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=8"
+  },
   "dependencies": {
     "browser-sync": "^2.26.7",
     "commander": "^3.0.2",
@@ -25,6 +30,10 @@
     "twig": "^1.13.3"
   },
   "devDependencies": {
+    "@babel/cli": "^7.6.2",
+    "@babel/core": "^7.6.2",
+    "@babel/node": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
     "@types/browser-sync": "^2.26.1",
     "@types/commander": "^2.12.2",
     "@types/jest": "^24.0.18",

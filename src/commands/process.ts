@@ -53,7 +53,14 @@ export default async function processFiles({
     await asyncMakeDir(buildDir);
   }
 
-  const _target = target instanceof Array ? target : [target];
+  const _target =
+    target instanceof Array
+      ? target.length
+        ? target
+        : // Default to `templates/**/*.mjml` if no targets were given
+          ["templates/**/*.mjml"]
+      : [target];
+
   const _matches = await Promise.all(
     _target.map(async targetInput => {
       // Not a glob

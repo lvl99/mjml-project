@@ -5,11 +5,12 @@
 .DS_Store
 Thumbs.db
 node_modules
-coverage
-log
+logs
 *.log
+coverage
 
 # hide test folders
 /data
 /build
 /templates
+/src/components

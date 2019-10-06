@@ -8,9 +8,9 @@ function collect(value: any, previous: any[] = []) {
 }
 
 program
-  .command("process <target>")
+  .command("process [target]")
   .option(
-    "-t, --target <file_path_or_glob>",
+    "-t, --target <filePathOrGlob>",
     "Target template file path or glob to build",
     collect,
     []
