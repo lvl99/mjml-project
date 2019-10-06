@@ -1,0 +1,15 @@
+{
+  "name": "%PROJECT_NAME%",
+  "version": "1.0.0",
+  "description": "MJML Project",
+  "scripts": {
+    "build": "npx mjml-project process -t \"templates/**/*.mjml\"",
+    "watch": "npx mjml-project process -t \"templates/**/*.mjml\" --watch"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "mjml-core": "^4.5.1",
+    "mjml-validator": "^4.5.0",
+    "mjml-project": "/Users/mattscheurich/Dev/mjml-project"
+  }
+}

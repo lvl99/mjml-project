@@ -1,0 +1,11 @@
+!.gitignore
+!.gitkeep
+.idea
+.vscode
+.vs
+.DS_Store
+Thumbs.db
+node_modules
+coverage
+logs
+*.log

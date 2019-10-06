@@ -1,0 +1,15 @@
+.gitignore
+.vscode
+.vs
+.idea
+.DS_Store
+Thumbs.db
+node_modules
+coverage
+log
+*.log
+
+# hide test folders
+/data
+/build
+/templates

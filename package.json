@@ -1,0 +1,62 @@
+{
+  "name": "mjml-project",
+  "version": "1.0.0",
+  "description": "Develop your email project using MJML",
+  "main": "dist/index.js",
+  "bin": {
+    "create-mjml-project": "./dist/create-mjml-project.js",
+    "mjml-project": "./dist/index.js"
+  },
+  "scripts": {
+    "prepare": "npm run-script build",
+    "build": "npx tsc"
+  },
+  "author": "Matt Scheurich <matt@lvl99.com>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/browser-sync": "^2.26.1",
+    "@types/commander": "^2.12.2",
+    "@types/jest": "^24.0.18",
+    "@types/mjml": "^4.0.2",
+    "@types/mkdirp": "^0.5.2",
+    "@types/ncp": "^2.0.1",
+    "@types/node": "^12.7.10",
+    "@types/twig": "^1.12.2",
+    "@typescript-eslint/eslint-plugin": "^2.3.1",
+    "@typescript-eslint/parser": "^2.3.1",
+    "commander": "^3.0.2",
+    "eslint": "^6.4.0",
+    "eslint-config-prettier": "^6.3.0",
+    "eslint-import-resolver-typescript": "^1.1.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "glob": "^7.1.4",
+    "jest": "^24.9.0",
+    "mjml": "^4.5.1",
+    "mkdirp": "^0.5.1",
+    "ncp": "^2.0.0",
+    "prettier": "^1.18.2",
+    "read-pkg-up": "^7.0.0",
+    "replace-in-files": "^2.0.3",
+    "ts-jest": "^24.1.0",
+    "twig": "^1.13.3",
+    "typescript": "^3.6.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "coverageReporters": [
+      "text-summary",
+      "html"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,ts}"
+    ],
+    "transform": {
+      "^.+\\.ts?$": "ts-jest"
+    }
+  },
+  "dependencies": {
+    "browser-sync": "^2.26.7",
+    "open": "^6.4.0"
+  }
+}
