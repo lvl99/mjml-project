@@ -1,7 +1,7 @@
 {
   "name": "mjml-project",
   "version": "1.0.0",
-  "description": "Develop your email project using MJML",
+  "description": "Bootstrap and develop your email project using MJML",
   "main": "dist/index.js",
   "bin": {
     "create-mjml-project": "./dist/create-mjml-project.js",
