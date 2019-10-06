@@ -30,10 +30,6 @@
     "twig": "^1.13.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.6.2",
-    "@babel/core": "^7.6.2",
-    "@babel/node": "^7.6.2",
-    "@babel/preset-env": "^7.6.2",
     "@types/browser-sync": "^2.26.1",
     "@types/commander": "^2.12.2",
     "@types/jest": "^24.0.18",
