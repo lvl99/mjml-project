@@ -1,5 +1,5 @@
-import { registerDependencies } from "mjml-validator";
-import { BodyComponent } from "mjml-core";
+const { registerDependencies } = require("mjml-validator");
+const { BodyComponent } = require("mjml-core");
 
 registerDependencies({
   "mj-hello-world": [],
@@ -7,9 +7,7 @@ registerDependencies({
   "mj-wrapper": ["mj-hello-world"]
 });
 
-export default class MjHelloWorld extends BodyComponent {
-  static endingTag = false;
-
+class MjHelloWorld extends BodyComponent {
   render() {
     /**
      * It's possible to use Twig {{ keyword }} interpolation within your
@@ -22,3 +20,8 @@ export default class MjHelloWorld extends BodyComponent {
     `);
   }
 }
+
+// Static
+MjHelloWorld.endingTag = false;
+
+module.exports = MjHelloWorld;

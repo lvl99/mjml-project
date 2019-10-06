@@ -35,6 +35,8 @@ export default async function createMjmlProject(
     process.exit(1);
   });
 
+  console.log(`1/2 Bootstrapping ${name} project files...`);
+
   // Copy the template project files
   await asyncCopyFiles(projectTemplatePath, projectOutputPath).catch(errs => {
     errs.map(err => console.error(err.message));
@@ -51,15 +53,17 @@ export default async function createMjmlProject(
     process.exit(1);
   });
 
+  console.log("2/2 Installing npm dependencies...");
+
   // Install npm packages
   // @NOTE stupid core-js and their ads...
   await asyncExec("npm install --loglevel silent")
     .then(({ stdout, stderr }) => {
       if (stdout) {
-        console.log(stdout);
+        console.log(stdout.trim());
       }
       if (stderr) {
-        console.error(stderr);
+        console.error(stderr.trim());
       }
     })
     .catch(err => {
@@ -67,7 +71,7 @@ export default async function createMjmlProject(
       process.exit(1);
     });
 
-  console.log(`Created new MJML project ${name} at ${projectOutputPath}`);
+  console.log(`✨ Created new MJML project ${name} at ${projectOutputPath}`);
 }
 
 // node ./dist/create-mjml-project PROJECT_NAME [OUTPUT_PATH]

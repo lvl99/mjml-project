@@ -8,10 +8,10 @@
     "mjml-project": "./dist/index.js"
   },
   "scripts": {
-    "prepare": "npm run-script build",
     "build": "npx tsc",
     "test:build": "npm run-script build && node ./dist/index.js process",
-    "test:watch": "npm run-script build && node ./dist/index.js process --watch"
+    "test:watch": "npm run-script build && node ./dist/index.js process --watch",
+    "prepare": "npm run-script build"
   },
   "author": "Matt Scheurich <matt@lvl99.com>",
   "license": "Apache-2.0",
@@ -23,6 +23,8 @@
     "commander": "^3.0.2",
     "glob": "^7.1.4",
     "mjml": "^4.5.1",
+    "mjml-core": "^4.5.1",
+    "mjml-validator": "^4.5.0",
     "mkdirp": "^0.5.1",
     "ncp": "^2.0.0",
     "read-pkg-up": "^7.0.0",
