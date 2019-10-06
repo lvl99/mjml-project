@@ -9,7 +9,7 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "mjml-core": "^4.5.1",
-    "mjml-project": "^1.0.3",
+    "mjml-project": "^1.0.4",
     "mjml-validator": "^4.5.0"
   }
 }
