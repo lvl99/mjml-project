@@ -13,6 +13,8 @@ import {
   logger
 } from "../utils";
 
+require("@babel/register");
+
 enum Status {
   Processed,
   Updated,

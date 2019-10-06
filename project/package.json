@@ -8,10 +8,9 @@
   },
   "license": "UNLICENSED",
   "devDependencies": {
-    "@babel/cli": "^7.6.2",
     "@babel/core": "^7.6.2",
-    "@babel/node": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
+    "@babel/register": "^7.6.2",
     "mjml-core": "^4.5.1",
     "mjml-project": "^1.0.2",
     "mjml-validator": "^4.5.0"
