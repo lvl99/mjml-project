@@ -1,5 +1,5 @@
-const { registerDependencies } = require("mjml-validator");
-const { BodyComponent } = require("mjml-core");
+import { registerDependencies } from "mjml-validator";
+import { BodyComponent } from "mjml-core";
 
 registerDependencies({
   "mj-hello-world": [],
@@ -7,21 +7,20 @@ registerDependencies({
   "mj-wrapper": ["mj-hello-world"]
 });
 
-class MjHelloWorld extends BodyComponent {
+export default class MjHelloWorld extends BodyComponent {
+  static endingTag = false;
+
   render() {
     /**
-     * It's possible to use Twig {{ keyword }} interpolation within your
-     * MJML component's output.
+     * It's possible to use Twig {{ keyword }} interpolation and other
+     * features within your MJML component's output.
      */
     return this.renderMJML(`
       <mj-section>
-        {{ example }} {{ project }}
+        <mj-text>
+          <p>{{ example }}</p>
+        </mj-text>
       </mj-section>
     `);
   }
 }
-
-// Static
-MjHelloWorld.endingTag = false;
-
-module.exports = MjHelloWorld;

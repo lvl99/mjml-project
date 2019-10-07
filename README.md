@@ -34,8 +34,20 @@ npx create-mjml-project my-project .
 The folders it will create are:
 
 ```sh
-# Contains all your MJML templates
-/templates
+# Contains source code for custom MJML components
+/src
+  /components
+    HelloWorld.js
+
+# Contains transpiled code for custom MJML components
+/components
+  HelloWorld.js
+
+# Contains re-usable MJML partial templates
+/partials
+
+# Contains all your MJML layouts representing your email designs
+/layouts
   # Nested folders can help organise your files
   /example
     hello-world.mjml

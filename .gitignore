@@ -12,7 +12,12 @@ coverage
 dist
 
 # hide test folders
-/data
-/build
-/templates
+/.babelrc
+/.mjmlconfig
+/components
 /src/components
+/data
+/partials
+/layouts
+/public
+/build

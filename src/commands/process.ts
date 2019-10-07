@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs";
 import mjml from "mjml";
+import { registerComponent } from "mjml-core";
 import { hasMagic } from "glob";
 import { twig } from "twig";
 import browserSync, { BrowserSyncInstance } from "browser-sync";
@@ -16,7 +17,8 @@ import {
 enum Status {
   Processed,
   Updated,
-  DataUpdated
+  DataUpdated,
+  OtherUpdated
 }
 
 interface MJMLParseError {
@@ -34,8 +36,10 @@ export interface ProcessedFile {
   errors?: MJMLParseError[];
 }
 
+let alreadySetupProject = 0;
+
 export default async function processFiles({
-  target = "templates/**/*.mjml",
+  target = "layouts/**/*.mjml",
   watch = false,
   status = Status.Processed,
   bs
@@ -57,8 +61,8 @@ export default async function processFiles({
     target instanceof Array
       ? target.length
         ? target
-        : // Default to `templates/**/*.mjml` if no targets were given
-          ["templates/**/*.mjml"]
+        : // Default to `layouts/**/*.mjml` if no targets were given
+          ["layouts/**/*.mjml"]
       : [target];
 
   const _matches = await Promise.all(
@@ -86,146 +90,204 @@ export default async function processFiles({
   );
 
   // Get data stored in `/data/shared.json` (if it exists)
-  const sharedDataPath = path.join(execDir, "data", "shared.json");
-  const sharedData = fs.existsSync(sharedDataPath)
-    ? require(sharedDataPath)
+  const projectDataPath = path.join(execDir, "data", "shared.json");
+  const projectData = fs.existsSync(projectDataPath)
+    ? require(projectDataPath)
     : {};
+
+  // Register components into MJML
+  // @TODO only register component if hasn't been registered
+  // @TODO if watched component file changed, re-register component
+  try {
+    // @TODO figure out how to get @babel/register to work and remove
+    // the `build:components` script
+    // const setupProjectPath = path.join(execDir, "setupProject.js");
+    // if (fs.existsSync(setupProjectPath)) {
+    //   output.log(`Setting up project: ${setupProjectPath}`);
+    //   try {
+    //     require(setupProjectPath);
+    //   } catch (err) {
+    //     output.error("Error occurred when setting up project:");
+    //     output.error(err.stack);
+    //     process.exit(1);
+    //   }
+    // }
+
+    const components = await asyncGlob("components/**/*.js", {
+      root: execDir
+    });
+
+    components.forEach(componentPath => {
+      const componentModule = require(path.join(execDir, componentPath));
+      registerComponent(componentModule);
+      output.log(`Registered ${componentPath}`);
+    });
+  } catch (err) {
+    output.error(`Error when registering components in MJML:`);
+    output.error(err.stack);
+    process.exit(1);
+  }
 
   const filesBeingProcessed: Promise<ProcessedFile>[] = matches.map(
     async inputPath => {
       const filePath = path.isAbsolute(inputPath)
         ? inputPath
         : path.join(execDir, inputPath);
-      const templateDir = path
+
+      const layoutDir = path
         .dirname(filePath)
-        .replace(path.join(execDir, "templates"), "");
-      const templateBaseName = path.basename(filePath).replace(/\.mjml$/, "");
+        .replace(path.join(execDir, "layouts"), "");
 
-      const dataDir = path.join(execDir, "data", templateDir);
+      const layoutBaseName = path.basename(filePath).replace(/\.mjml$/, "");
 
-      const outputDir = path.join(buildDir, templateDir);
-      const outputPath = path.join(outputDir, `${templateBaseName}.html`);
+      const outputDir = path.join(buildDir, layoutDir);
+      const outputPath = path.join(outputDir, `${layoutBaseName}.html`);
 
-      // Read MJML file
-      const mjmlContent = await asyncReadFile(filePath)
-        .then(content => content.toString("utf8"))
-        .catch(err => {
-          output.error(`Error when reading ${filePath}:`);
-          output.error(err);
+      const dataDir = path.join(execDir, "data", layoutDir);
+
+      // Get shared folder data as well as specific layout data to interpolate
+      const sharedDataPath = path.join(dataDir, "shared.json");
+      const layoutDataPath = path.join(dataDir, `${layoutBaseName}.json`);
+      const layoutData = {
+        ...projectData,
+        ...(fs.existsSync(sharedDataPath) ? require(sharedDataPath) : {}),
+        ...(fs.existsSync(layoutDataPath) ? require(layoutDataPath) : {})
+      };
+
+      try {
+        // Read MJML file
+        const mjmlContent = await asyncReadFile(filePath)
+          .then(content => content.toString("utf8"))
+          .catch(err => {
+            output.error(`Error when reading ${filePath}:`);
+            output.error(err.stack);
+
+            if (!watch) {
+              process.exit(1);
+            }
+          });
+
+        if (!mjmlContent) {
+          const processedFile: ProcessedFile = {
+            inputPath: filePath,
+            outputPath,
+            errors: [
+              {
+                line: 0,
+                message: `Failed to read ${filePath}`,
+                tagName: "",
+                formattedMessage: `Failed to read ${filePath}`
+              }
+            ],
+            data: {},
+            html: ""
+          };
+
+          return processedFile;
+        }
+
+        // Convert MJML to HTML
+        const { html, errors } = mjml(mjmlContent, {
+          minify: true,
+          keepComments: false,
+          filePath,
+          // @ts-ignore Remove this when MJML types have been updated
+          mjmlConfigPath: execDir,
+          validationLevel: "soft"
+        });
+
+        if (errors.length) {
+          output.error(
+            `Found errors in MJML:\n${errors
+              .map(err => err.formattedMessage)
+              .join("\n")}`
+          );
+
+          if (!watch) {
+            process.exit(1);
+          }
+
+          const processedFile: ProcessedFile = {
+            inputPath: filePath,
+            outputPath,
+            errors,
+            data: {},
+            html: ""
+          };
+
+          return processedFile;
+        }
+
+        // Use Twig.js to do any other further operations, like variable interpolation
+        // @TODO feature flag
+        // @TODO support other templating languages
+        const layoutHtml = twig({
+          data: html
+        });
+
+        const renderedHtml = await layoutHtml
+          .renderAsync(layoutData)
+          .catch(err => {
+            output.error("Error occurred when Twig was rendering file:");
+            output.error(err.stack);
+
+            if (!watch) {
+              process.exit(1);
+            }
+
+            return html;
+          });
+
+        // Create the output folder if it doesn't already exist
+        if (!fs.existsSync(outputDir)) {
+          await asyncMakeDir(outputDir).catch(err => {
+            output.error("Error occurred when creating the output folder:");
+            output.error(err.stack);
+
+            if (!watch) {
+              process.exit(1);
+            }
+          });
+        }
+
+        await asyncWriteFile(outputPath, renderedHtml, "utf8").catch(err => {
+          output.error("Error occurred when writing rendered layout file:");
+          output.error(err.stack);
 
           if (!watch) {
             process.exit(1);
           }
         });
-
-      if (!mjmlContent) {
-        const processedFile: ProcessedFile = {
-          inputPath: filePath,
-          outputPath,
-          errors: [
-            {
-              line: 0,
-              message: `Failed to read ${filePath}`,
-              tagName: "",
-              formattedMessage: `Failed to read ${filePath}`
-            }
-          ],
-          data: {},
-          html: ""
-        };
-
-        return processedFile;
-      }
-
-      // Convert MJML to HTML
-      const { html, errors } = mjml(mjmlContent, {
-        minify: true,
-        keepComments: false,
-        filePath: execDir,
-        // @ts-ignore Remove this when MJML types have been updated
-        mjmlConfigPath: execDir,
-        validationLevel: "strict"
-      });
-
-      if (errors.length) {
-        output.error(`Found errors in MJML:\n${errors.join("\n")}`);
-
-        if (!watch) {
-          process.exit(1);
-        }
 
         const processedFile: ProcessedFile = {
           inputPath: filePath,
           outputPath,
           errors,
-          data: {},
-          html: ""
+          data: layoutData,
+          html: renderedHtml
         };
 
         return processedFile;
-      }
-
-      // Use Twig.js to do any other further operations, like variable interpolation
-      // @TODO feature flag
-      // @TODO support other templating languages
-      const templateHtml = twig({
-        data: html
-      });
-
-      // Get shared template data as well as specific template data to interpolate
-      const sharedTemplateDataPath = path.join(dataDir, "shared.json");
-      const templateDataPath = path.join(dataDir, `${templateBaseName}.json`);
-      const templateData = {
-        ...sharedData,
-        ...(fs.existsSync(sharedTemplateDataPath)
-          ? require(sharedTemplateDataPath)
-          : {}),
-        ...(fs.existsSync(templateDataPath) ? require(templateDataPath) : {})
-      };
-
-      const renderedHtml = await templateHtml
-        .renderAsync(templateData)
-        .catch(err => {
-          output.error("Error occurred when Twig was rendering file:");
-          output.error(err);
-
-          if (!watch) {
-            process.exit(1);
-          }
-
-          return html;
-        });
-
-      // Create the output folder if it doesn't already exist
-      if (!fs.existsSync(outputDir)) {
-        await asyncMakeDir(outputDir).catch(err => {
-          output.error("Error occurred when creating the output folder:");
-          output.error(err);
-
-          if (!watch) {
-            process.exit(1);
-          }
-        });
-      }
-
-      await asyncWriteFile(outputPath, renderedHtml, "utf8").catch(err => {
-        output.error("Error occurred when writing rendered template file:");
-        output.error(err);
-
+      } catch (err) {
         if (!watch) {
-          process.exit(1);
+          throw new Error(`${filePath}:\n${err.stack}`);
         }
-      });
 
-      const processedFile: ProcessedFile = {
-        inputPath: filePath,
-        outputPath,
-        errors,
-        data: templateData,
-        html: renderedHtml
-      };
-
-      return processedFile;
+        return {
+          inputPath: filePath,
+          outputPath,
+          errors: [
+            {
+              line: 0,
+              message: err.message,
+              tagName: "",
+              formattedMessage: `Processing error found in ${filePath}:\n${err.stack}`
+            }
+          ],
+          data: {},
+          html: ""
+        };
+      }
     }
   );
 
@@ -240,6 +302,10 @@ export default async function processFiles({
 
           case Status.DataUpdated:
             output.log(`Updated data for ${outputPath}`);
+            break;
+
+          case Status.OtherUpdated:
+            output.log(`Updated dependent file for ${outputPath}`);
             break;
 
           default:
@@ -265,7 +331,7 @@ export default async function processFiles({
     })
     .catch(err => {
       output.error("Error occurred when processing files:");
-      output.error(err);
+      output.error(err.stack);
 
       if (!watch) {
         process.exit(1);
@@ -276,7 +342,7 @@ export default async function processFiles({
 }
 
 export async function watchAndProcessFiles({
-  target = "templates/**/*.mjml"
+  target = "layouts/**/*.mjml"
 }: {
   target: string | string[];
 }) {
@@ -293,6 +359,8 @@ export async function watchAndProcessFiles({
       cwd: execDir
     },
     async (event, file) => {
+      logger.log(`Detected event "${event}" in ${file}`);
+
       switch (event) {
         case "change":
           let targetPath = "";
@@ -310,10 +378,10 @@ export async function watchAndProcessFiles({
           }
           // If shared data is updated, update all the templates within using a glob
           else {
-            targetPath = path.join(execDir, "templates", "**/*.mjml");
+            targetPath = path.join(execDir, "layouts", "**/*.mjml");
           }
 
-          await processFiles({
+          processFiles({
             target: targetPath,
             status: Status.DataUpdated,
             watch: true,
@@ -327,19 +395,47 @@ export async function watchAndProcessFiles({
     }
   );
 
+  // Watch all other files
+  bs.watch(
+    "{partials,components,public}/**/*",
+    {
+      cwd: execDir
+    },
+    async (event, file) => {
+      logger.log(`Detected event "${event}" in ${file}`);
+
+      switch (event) {
+        case "change":
+          processFiles({
+            target: "layouts/**/*.mjml",
+            status: Status.OtherUpdated,
+            watch: true,
+            bs
+          });
+
+          break;
+
+        default:
+      }
+    }
+  );
+
+  // Watch layouts
   _target.forEach(targetGlob => {
     logger.log(`Watching ${path.relative(execDir, targetGlob)}`);
 
-    // Watch each template glob for changes
+    // Watch each target glob for changes
     bs.watch(
       targetGlob,
       {
         cwd: execDir
       },
       async (event, file) => {
+        logger.log(`Detected event "${event}" in ${file}`);
+
         switch (event) {
           case "change":
-            await processFiles({
+            processFiles({
               target: String(file),
               status: Status.Updated,
               watch: true,

@@ -20,6 +20,7 @@
     "@typescript-eslint/no-namespace": "warn",
     "@typescript-eslint/camelcase": "off",
     "@typescript-eslint/class-name-casing": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
     "import/order": ["error", {
       "groups": ["builtin", "external", ["internal", "parent", "sibling"], "index"]
     }]

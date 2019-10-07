@@ -7,5 +7,6 @@
         </mj-text>
       </mj-column>
     </mj-section>
+    <mj-include path="../partials/footer.mjml" />
   </mj-body>
 </mjml>

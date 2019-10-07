@@ -25,11 +25,11 @@ program
 
     if (cmd.watch) {
       watchAndProcessFiles({
-        target: targets
+        target: targets.length ? targets : undefined
       });
     } else {
       processTemplates({
-        target: targets
+        target: targets.length ? targets : undefined
       });
     }
   });

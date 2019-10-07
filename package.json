@@ -2,15 +2,16 @@
   "name": "mjml-project",
   "version": "1.0.4",
   "description": "Bootstrap and develop your email project using MJML",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
   "bin": {
     "create-mjml-project": "./dist/create-mjml-project.js",
     "mjml-project": "./dist/index.js"
   },
   "scripts": {
     "build": "npx tsc",
-    "test:build": "npm run-script build && node ./dist/index.js process",
-    "test:watch": "npm run-script build && node ./dist/index.js process --watch",
+    "test:build:components": "npx babel src/components --out-dir components --ignore \"src/**/*.{spec,test}.{ts,js}\"",
+    "test:build": "npm run-script build && npm run-script test:build:components && node ./dist/index.js process",
+    "test:watch": "npm run-script build && npm run-script test:build:components && node ./dist/index.js process --watch",
     "prepare": "npm run-script build"
   },
   "author": "Matt Scheurich <matt@lvl99.com>",
@@ -42,6 +43,13 @@
     "@types/twig": "^1.12.2",
     "@typescript-eslint/eslint-plugin": "^2.3.1",
     "@typescript-eslint/parser": "^2.3.1",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.13.2",
+    "babel-eslint": "^6.1.2",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-register": "^6.14.0",
     "eslint": "^6.4.0",
     "eslint-config-prettier": "^6.3.0",
     "eslint-import-resolver-typescript": "^1.1.1",

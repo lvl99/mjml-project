@@ -3,11 +3,19 @@
   "version": "1.0.0",
   "description": "MJML Project",
   "scripts": {
-    "build": "npx mjml-project process",
-    "watch": "npx mjml-project process --watch"
+    "build:components": "npx babel src/components --out-dir components --ignore \"src/**/*.{spec,test}.{ts,js}\"",
+    "build": "npm run-script build:components && npx mjml-project process",
+    "watch": "npm run-script build:components && npx mjml-project process --watch"
   },
   "license": "UNLICENSED",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.13.2",
+    "babel-eslint": "^6.1.2",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-register": "^6.14.0",
     "mjml-core": "^4.5.1",
     "mjml-project": "^1.0.4",
     "mjml-validator": "^4.5.0"

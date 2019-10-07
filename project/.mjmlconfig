@@ -1,5 +1,5 @@
 {
   "packages": [
-    "./src/components/HelloWorld.js"
+    "./components/HelloWorld.js"
   ]
 }
