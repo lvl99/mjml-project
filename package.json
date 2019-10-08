@@ -9,9 +9,8 @@
   },
   "scripts": {
     "build": "npx tsc",
-    "test:build:components": "npx babel src/components --out-dir components --ignore \"src/**/*.{spec,test}.{ts,js}\"",
-    "test:build": "npm run-script build && npm run-script test:build:components && node ./dist/index.js process",
-    "test:watch": "npm run-script build && npm run-script test:build:components && node ./dist/index.js process --watch",
+    "clean": "rm -rf test-mjml-project",
+    "test:create": "npm run-script clean && npm run-script build && node ./dist/create-mjml-project.js test-mjml-project",
     "prepare": "npm run-script build"
   },
   "author": "Matt Scheurich <matt@lvl99.com>",
@@ -21,6 +20,7 @@
   },
   "dependencies": {
     "browser-sync": "^2.26.7",
+    "chalk": "^2.4.2",
     "commander": "^3.0.2",
     "glob": "^7.1.4",
     "mjml": "^4.5.1",

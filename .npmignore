@@ -10,12 +10,4 @@ logs
 coverage
 
 # hide test folders
-/.babelrc
-/.mjmlconfig
-/components
-/src/components
-/data
-/partials
-/layouts
-/public
-/build
+/test-mjml-project

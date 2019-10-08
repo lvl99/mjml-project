@@ -36,8 +36,6 @@ export interface ProcessedFile {
   errors?: MJMLParseError[];
 }
 
-let alreadySetupProject = 0;
-
 export default async function processFiles({
   target = "layouts/**/*.mjml",
   watch = false,
