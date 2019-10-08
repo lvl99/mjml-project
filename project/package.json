@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "MJML Project",
   "scripts": {
-    "build:components": "npx babel src/components --out-dir components --ignore \"src/**/*.{spec,test}.{ts,js}\"",
+    "build:components": "npx babel-cli src/components --out-dir components --ignore \"src/**/*.{spec,test}.{ts,js}\"",
     "build": "npm run-script build:components && npx mjml-project process",
     "watch": "npm run-script build:components && npx mjml-project process --watch"
   },
